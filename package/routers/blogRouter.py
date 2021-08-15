@@ -13,9 +13,9 @@ router=APIRouter(
 )
 
 @router.get('/', response_model=List[BlogResponse], status_code=status.HTTP_200_OK)
-async def getBlogs(q:Optional[str]=None,db:Session=Depends(get_db)):
-    if q:
-        blogs:List[Blog]=db.query(Blog).filter(Blog.title.like(f'%{q}%')).all()
+async def getBlogs(query:Optional[str]=None,db:Session=Depends(get_db)):
+    if query:
+        blogs:List[Blog]=db.query(Blog).filter(Blog.title.like(f'%{query}%')).all()
     else:
         blogs:List[Blog]=db.query(Blog).all()
     if not blogs:
@@ -39,10 +39,21 @@ async def getBlog(id:int,db:Session=Depends(get_db)):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="does not have this blog")
     return blog
 
-# @router.put('/{id}', response_model=BlogResponse, status_code=status.HTTP_200_OK)
-# async def updateBlog(id:int,request:BlogRequest,db:Session=Depends(get_db)):
-#     blog:Blog=db.query(Blog).filter(Blog.id==id).first()
-#     if not blog:
-#         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="does not have this blog")
-    
-#     return blog
+@router.put('/{id}', response_model=BlogResponse, status_code=status.HTTP_200_OK)
+async def updateBlog(id:int,request:BlogRequest,db:Session=Depends(get_db)):
+    blogQ=db.query(Blog).filter(Blog.id==id)
+
+    if not blogQ.first():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="does not have this blog")
+    blogQ.update(request.dict())
+    db.commit()
+    return blogQ.first()
+
+@router.delete('/{id}', status_code=status.HTTP_200_OK)
+async def deleteBlog(id:int,db:Session=Depends(get_db)):
+    blogQ=db.query(Blog).filter(Blog.id==id)
+    if not blogQ.first():
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="does not have this blog")
+    blogQ.delete()
+    db.commit()
+    return {"message":f"succesfully deleted blog {id}"}
