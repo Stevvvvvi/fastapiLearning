@@ -1,14 +1,21 @@
 from typing import Optional
 from fastapi import FastAPI
-from package.routers import blogRouter
+from package.routers import blogRouter, userRouter
 from package.models import Base
 from package.db import engine
+import os
+from dotenv import load_dotenv
+load_dotenv()
+
+print(os.environ['HASH_SECRET_KEY'])
 # import uvicorn
 # Base.metadata.drop_all(engine)
 Base.metadata.create_all(bind=engine)
 app = FastAPI()
 
+app.include_router(userRouter.router)
 app.include_router(blogRouter.router)
+
 @app.get("/")
 def read_root():
     return {"Hello": "World"}

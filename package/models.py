@@ -9,3 +9,9 @@ class Blog(Base):
     description= Column(String)
     is_deleted= Column(Boolean, default=False)
 
+class User(Base):
+    __tablename__="user"
+    id=Column(Integer, primary_key=True, index=True, unique=True)
+    email=Column(String, unique=True, index=True)
+    password=Column(String)
+
