@@ -1,15 +1,11 @@
-from pydantic import BaseModel
+from typing import List
+from .base import BlogBaseResponse, UserBaseResponse
 
-class UserRequest(BaseModel):
-    email:str
-    password:str
 
-class UserResponse(BaseModel):
-    id:int
-    email:str
-    is_admin:bool
-    class Config:
-        orm_mode=True
-class UserTokenResponse(UserResponse):
+class UserResponse(UserBaseResponse):
+    blogs: List[BlogBaseResponse]
+
+class UserTokenResponse(UserBaseResponse):
     access_token: str
     token_type:str = "bearer"
+

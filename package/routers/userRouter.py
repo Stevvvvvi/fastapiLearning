@@ -2,10 +2,11 @@ from package.jwt import create_access_token, get_current_user
 from ..models import User
 from ..dependency import get_db
 from sqlalchemy.orm.session import Session
-from package.schemas.user import UserRequest, UserResponse, UserTokenResponse
+from package.schemas.base import UserRequest
+from ..schemas.user import UserResponse, UserTokenResponse
 from fastapi import APIRouter, status, Depends, HTTPException
 from ..hash import pwd_context
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
+from fastapi.security import OAuth2PasswordRequestForm
 
 
 router=APIRouter(

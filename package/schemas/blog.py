@@ -1,13 +1,7 @@
-from typing import Optional
-from pydantic import BaseModel
+from .base import BlogBaseResponse, UserBaseResponse
 
-class BlogRequest(BaseModel):
-    title: str
-    content: str
-    description: Optional[str] = None
-
-class BlogResponse(BlogRequest):
-    id: int
-    class Config:
-        orm_mode = True
+    
+class BlogResponse(BlogBaseResponse):
+    creator: UserBaseResponse
+    owner_id: int
 

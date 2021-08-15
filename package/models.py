@@ -1,4 +1,5 @@
-from sqlalchemy import Column, String, Integer, Boolean
+from sqlalchemy import Column, String, Integer, Boolean, ForeignKey
+from sqlalchemy.orm import relationship
 from .db import Base
 
 class Blog(Base):
@@ -8,6 +9,9 @@ class Blog(Base):
     content= Column(String)
     description= Column(String)
     is_deleted= Column(Boolean, default=False)
+    creator= relationship("User",back_populates="blogs")
+    owner_id=Column(Integer, ForeignKey("user.id"))
+    
 
 class User(Base):
     __tablename__="user"
@@ -16,4 +20,6 @@ class User(Base):
     password=Column(String)
     is_superuser=Column(Boolean,default=False)
     is_admin=Column(Boolean,default=False)
+    blogs=relationship("Blog",back_populates="creator")
+
 
