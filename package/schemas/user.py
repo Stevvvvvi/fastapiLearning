@@ -7,5 +7,9 @@ class UserRequest(BaseModel):
 class UserResponse(BaseModel):
     id:int
     email:str
+    is_admin:bool
     class Config:
         orm_mode=True
+class UserTokenResponse(UserResponse):
+    access_token: str
+    token_type:str = "bearer"

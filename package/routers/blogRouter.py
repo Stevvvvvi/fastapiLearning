@@ -1,10 +1,10 @@
+from package.jwt import get_current_user
 from package import routers
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
-from .userRouter import asdf
 from ..schemas.blog import BlogRequest, BlogResponse
-from ..models import Blog
+from ..models import Blog, User
 from ..dependency import get_db
 
 router=APIRouter(
@@ -13,7 +13,7 @@ router=APIRouter(
 )
 
 @router.get('/', response_model=List[BlogResponse], status_code=status.HTTP_200_OK)
-async def getBlogs(query:Optional[str]=None,db:Session=Depends(get_db)):
+async def getBlogs(query:Optional[str]=None,db:Session=Depends(get_db),user: User = Depends(get_current_user)):
     if query:
         blogs:List[Blog]=db.query(Blog).filter(Blog.title.like(f'%{query}%')).all()
     else:
@@ -23,7 +23,7 @@ async def getBlogs(query:Optional[str]=None,db:Session=Depends(get_db)):
     return blogs
 
 @router.post('/', response_model=BlogResponse, status_code=status.HTTP_201_CREATED)
-async def createBlog(request:BlogRequest,db:Session=Depends(get_db)):
+async def createBlog(request:BlogRequest,db:Session=Depends(get_db),user: User = Depends(get_current_user)):
     newblog=Blog(**request.dict())
     db.add(newblog)
     db.commit()
@@ -33,14 +33,14 @@ async def createBlog(request:BlogRequest,db:Session=Depends(get_db)):
     return newblog
 
 @router.get('/{id}', response_model=BlogResponse, status_code=status.HTTP_200_OK)
-async def getBlog(id:int,db:Session=Depends(get_db)):
+async def getBlog(id:int,db:Session=Depends(get_db),user: User = Depends(get_current_user)):
     blog:Blog=db.query(Blog).filter(Blog.id==id).first()
     if not blog:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="does not have this blog")
     return blog
 
 @router.put('/{id}', response_model=BlogResponse, status_code=status.HTTP_200_OK)
-async def updateBlog(id:int,request:BlogRequest,db:Session=Depends(get_db)):
+async def updateBlog(id:int,request:BlogRequest,db:Session=Depends(get_db),user: User = Depends(get_current_user)):
     blogQ=db.query(Blog).filter(Blog.id==id)
 
     if not blogQ.first():
@@ -50,7 +50,7 @@ async def updateBlog(id:int,request:BlogRequest,db:Session=Depends(get_db)):
     return blogQ.first()
 
 @router.delete('/{id}', status_code=status.HTTP_200_OK)
-async def deleteBlog(id:int,db:Session=Depends(get_db)):
+async def deleteBlog(id:int,db:Session=Depends(get_db),user: User = Depends(get_current_user)):
     blogQ=db.query(Blog).filter(Blog.id==id)
     if not blogQ.first():
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="does not have this blog")
